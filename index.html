@@ -217,6 +217,7 @@
       font-weight: 800;
       margin-bottom: 24px;
       color: #1f2328;
+      line-height: 1.4;
     }
     .choices-grid {
       display: grid;
@@ -226,7 +227,7 @@
       border: 2px solid var(--border);
       border-radius: 12px;
       padding: 18px 20px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -234,6 +235,7 @@
       gap: 14px;
       transition: all 0.15s ease;
       background: #ffffff;
+      line-height: 1.4;
     }
     .choice-card:hover {
       border-color: var(--yamanote);
@@ -481,7 +483,7 @@
       margin-top: 14px;
     }
 
-    /* ロゴ変更UI (簡易ポップアップ) */
+    /* ロゴ変更UI */
     .logo-uploader-card {
       font-size: 12px;
       color: var(--text-sub);
@@ -537,7 +539,7 @@
         <h1 class="hero-title">あなたを山手線の駅に例えると？</h1>
         <p class="hero-desc">
           にぎやか/しずか、寄り道/定番、気持ち/理屈、気まぐれ/計画。<br>
-          12の問いから、あなたの街歩き・思考スタイルに最も近い山手線の駅を診断します。
+          12のシチュエーションから、あなたの行動や思考スタイルに一番近い山手線の駅を診断します。
         </p>
         <button class="btn" onclick="startQuiz()">診断を出発進行 🚃</button>
       </div>
@@ -724,20 +726,116 @@
       { id: "JY30", name: "有楽町", ruby: "ゆうらくちょう", alias: "ガード下と銀座をつなぐ社交家", score: [1, -1, 1, -2], desc: "ガード下と銀座の上品さ。相手に合わせて自然に場をつくります。", pros: "調整力・社交性", cons: "八方美人と言われがち", topic: "初対面の人と仲良くなるコツは？", best3: "東京（97）、浜松町（96）、大塚（95）" }
     ];
 
-    /* 12の質問定義 (MD定義準拠: 軸0=にぎやか, 軸1=寄り道, 軸2=気持ち, 軸3=気まぐれ) */
+    /* 12の質問定義 (場面シチュエーション補正版) */
     const QUESTIONS = [
-      { axisIndex: 0, axisName: "にぎやか／しずか", c1: "声をかけて立ち話する（にぎやか）", c1Val: 1, c2: "気づかれないうちに改札へ（しずか）", c2Val: -1 },
-      { axisIndex: 1, axisName: "寄り道／定番", c1: "表示された最短ルートに素直に乗る（定番）", c1Val: -1, c2: "「この駅で降りたら面白そう」と寄り道を考える（寄り道）", c2Val: 1 },
-      { axisIndex: 2, axisName: "気持ち／理屈", c1: "まず「大変だったね」と声をかける（気持ち）", c1Val: 1, c2: "次から迷わないルートを教える（理屈）", c2Val: -1 },
-      { axisIndex: 3, axisName: "気まぐれ／計画", c1: "10分前には着いている（計画）", c1Val: -1, c2: "ぴったりか、ちょっとギリギリ（気まぐれ）", c2Val: 1 },
-      { axisIndex: 0, axisName: "にぎやか／しずか", c1: "家でゆっくり回復する（しずか）", c1Val: -1, c2: "誰か誘って飲みに行く（にぎやか）", c2Val: 1 },
-      { axisIndex: 1, axisName: "寄り道／定番", c1: "直感でピンときた路地に入る（寄り道）", c1Val: 1, c2: "評価の高い定番の店を調べて行く（定番）", c2Val: -1 },
-      { axisIndex: 2, axisName: "気持ち／理屈", c1: "コスパと立地（理屈）", c1Val: -1, c2: "一緒に行く人が喜びそうか（気持ち）", c2Val: 1 },
-      { axisIndex: 3, axisName: "気まぐれ／計画", c1: "宿だけ取って、あとは現地で考える（気まぐれ）", c1Val: 1, c2: "乗る電車まで決めておく（計画）", c2Val: -1 },
-      { axisIndex: 0, axisName: "にぎやか／しずか", c1: "自分から話題を振る（にぎやか）", c1Val: 1, c2: "話しかけられるのを待つ（しずか）", c2Val: -1 },
-      { axisIndex: 1, axisName: "寄り道／定番", c1: "具体的な出来事を順番に話す（定番）", c1Val: -1, c2: "たとえ話や「要するに」が多い（寄り道）", c2Val: 1 },
-      { axisIndex: 2, axisName: "気持ち／理屈", c1: "みんなが納得できる落としどころを探す（気持ち）", c1Val: 1, c2: "筋が通っているほうを選ぶ（理屈）", c2Val: -1 },
-      { axisIndex: 3, axisName: "気まぐれ／計画", c1: "先に来たほうに乗る（気まぐれ）", c1Val: 1, c2: "事前に早いほうを調べておく（計画）", c2Val: -1 }
+      { 
+        title: "駅のホームで知り合いを見かけたとき",
+        axisIndex: 0, 
+        axisName: "にぎやか／しずか", 
+        c1: "声をかけて少し立ち話していく", 
+        c1Val: 1, 
+        c2: "気づかれないうちにそっと改札へ向かう", 
+        c2Val: -1 
+      },
+      { 
+        title: "初めて行く街へ電車で向かうとき",
+        axisIndex: 1, 
+        axisName: "寄り道／定番", 
+        c1: "案内アプリの最短ルート通りに行く", 
+        c1Val: -1, 
+        c2: "「この駅で途中下車したら面白そう」と寄り道を考える", 
+        c2Val: 1 
+      },
+      { 
+        title: "道に迷って遅れてきた友達を迎えるとき",
+        axisIndex: 2, 
+        axisName: "気持ち／理屈", 
+        c1: "まず「迷っちゃったんだね、大変だったね！」と共感する", 
+        c1Val: 1, 
+        c2: "「次からはこの出口から出ると迷わないよ」と案内する", 
+        c2Val: -1 
+      },
+      { 
+        title: "休日の待ち合わせ場所に到着するタイミング",
+        axisIndex: 3, 
+        axisName: "気まぐれ／計画", 
+        c1: "余裕を持って10分前には着いている", 
+        c1Val: -1, 
+        c2: "ちょうど時間ぴったりか、少しギリギリ", 
+        c2Val: 1 
+      },
+      { 
+        title: "用事でどっと疲れた日の夜の過ごし方",
+        axisIndex: 0, 
+        axisName: "にぎやか／しずか", 
+        c1: "自宅でひとりでゆっくり充電する", 
+        c1Val: -1, 
+        c2: "誰かを誘って飲みやご飯に行って発散する", 
+        c2Val: 1 
+      },
+      { 
+        title: "散歩中に立ち寄るお店を決めるとき",
+        axisIndex: 1, 
+        axisName: "寄り道／定番", 
+        c1: "通りがかりに直感でピンときた路地裏の店に入る", 
+        c1Val: 1, 
+        c2: "口コミ評価の高い定番・人気店を調べて行く", 
+        c2Val: -1 
+      },
+      { 
+        title: "みんなで行く食事や旅行先を選ぶ決め手",
+        axisIndex: 2, 
+        axisName: "気持ち／理屈", 
+        c1: "コスパや立地、移動の合理性", 
+        c1Val: -1, 
+        c2: "一緒に行く人がワクワクして喜んでくれそうか", 
+        c2Val: 1 
+      },
+      { 
+        title: "1泊2日の旅行スケジュールを立てるとき",
+        axisIndex: 3, 
+        axisName: "気まぐれ／計画", 
+        c1: "宿だけ取って、過ごし方は現地で考える", 
+        c1Val: 1, 
+        c2: "乗る電車や回る順序まで事前にしっかり決めておく", 
+        c2Val: -1 
+      },
+      { 
+        title: "複数人で集まった場での会話スタイル",
+        axisIndex: 0, 
+        axisName: "にぎやか／しずか", 
+        c1: "自分から積極的に話題を振っていく", 
+        c1Val: 1, 
+        c2: "誰かが話しかけてくれるまで聞き役に回る", 
+        c2Val: -1 
+      },
+      { 
+        title: "人に出来事やおすすめを話すとき",
+        axisIndex: 1, 
+        axisName: "寄り道／定番", 
+        c1: "起きた順番どおりに、事実を具体的に伝える", 
+        c1Val: -1, 
+        c2: "たとえ話や「要するに！」と感覚的に語る", 
+        c2Val: 1 
+      },
+      { 
+        title: "意見が分かれてグループの結論を出すとき",
+        axisIndex: 2, 
+        axisName: "気持ち／理屈", 
+        c1: "みんなの気持ちを汲んで、納得できる落としどころを探す", 
+        c1Val: 1, 
+        c2: "感情を挟まず、筋が通っているほうを選ぶ", 
+        c2Val: -1 
+      },
+      { 
+        title: "目的地までの電車が2通りあるとき",
+        axisIndex: 3, 
+        axisName: "気まぐれ／計画", 
+        c1: "ホームに先に来たほうの電車に乗る", 
+        c1Val: 1, 
+        c2: "どちらが早く着くかスマホで調べてから乗る", 
+        c2Val: -1 
+      }
     ];
 
     /* 30x30 相性表マトリクスデータ (MD完全準拠) */
@@ -846,14 +944,13 @@
       document.getElementById("questionNum").innerText = `Q${currentQ + 1} / 12`;
       document.getElementById("questionAxis").innerText = q.axisName;
       document.getElementById("progressBar").style.width = `${((currentQ) / 12) * 100}%`;
-      document.getElementById("questionText").innerText = `日常の移動や過ごし方、あなたならどっち？`;
+      document.getElementById("questionText").innerText = q.title;
       document.getElementById("choice1Text").innerText = q.c1;
       document.getElementById("choice2Text").innerText = q.c2;
     }
 
     function selectAnswer(direction) {
       const q = QUESTIONS[currentQ];
-      // direction: 1 = c1 (加算), -1 = c2
       const val = direction === 1 ? q.c1Val : q.c2Val;
       userAnswers.push({ axis: q.axisIndex, val: val });
 
@@ -865,7 +962,7 @@
       }
     }
 
-    /* 診断集計 (MD仕様: 各軸合計を1.5で割り、スコアとのユークリッド二乗距離が最小の駅) */
+    /* 診断集計 */
     function finishQuiz() {
       document.getElementById("quizQuestionCard").style.display = "none";
       document.getElementById("progressBar").style.width = "100%";
@@ -903,7 +1000,6 @@
       document.getElementById("resStationTopic").innerText = `「${st.topic}」`;
       document.getElementById("resStationBest3").innerText = st.best3;
 
-      // 4軸メーター描画 (-2〜+2 を 0%〜100% に変換)
       for (let i = 0; i < 4; i++) {
         const pct = Math.max(0, Math.min(100, ((scores[i] + 2) / 4) * 100));
         const fill = document.getElementById(`meter${i+1}`);
@@ -948,7 +1044,6 @@
         cube.innerText = randSt.name;
         setTimeout(() => { cube.style.fontSize = "40px"; }, 2500);
 
-        // その駅のお題を表示
         showTopicContent({
           catName: `駅ルーレット (${randSt.name})`,
           text: randSt.topic,
@@ -972,7 +1067,7 @@
       const card = document.getElementById("topicCardElement");
       if (animate) {
         card.classList.remove("flipped");
-        void card.offsetWidth; // リフロー
+        void card.offsetWidth;
         card.classList.add("flipped");
       }
       document.getElementById("topicCategoryBadge").innerText = item.catName;
@@ -1013,7 +1108,6 @@
       else if (score >= 74) rank = "乗り換え1回で会える仲";
       document.getElementById("compatRank").innerText = rank;
 
-      // 待ち合わせ中間駅＆所要時間の計算 (1駅約2分, 近い回りを採用)
       const diffClock = (idxB - idxA + 30) % 30;
       const diffCounter = (idxA - idxB + 30) % 30;
       const minDistance = Math.min(diffClock, diffCounter);
