@@ -519,4 +519,533 @@
       <nav>
         <button class="nav-btn active" onclick="switchTab('quiz')">診断する</button>
         <button class="nav-btn" onclick="switchTab('dice')">サイコロ＆お題</button>
-        <button class="nav-btn" onclick="switch
+        <button class="nav-btn" onclick="switchTab('stations')">30駅図鑑・相性</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="logo-uploader-card">
+      <label for="logoFileInput">📷 ロゴ画像を差し替える (ブラウザ保存)</label>
+      <input type="file" id="logoFileInput" accept="image/*" style="display: none;" onchange="handleLogoUpload(this)">
+    </div>
+
+    <!-- 診断画面 -->
+    <div id="quizView" class="view-panel active">
+      <div id="quizStartCard" class="card hero-banner">
+        <span class="hero-badge">山手線30駅 × 性格タイプ</span>
+        <h1 class="hero-title">あなたを山手線の駅に例えると？</h1>
+        <p class="hero-desc">
+          にぎやか/しずか、寄り道/定番、気持ち/理屈、気まぐれ/計画。<br>
+          12の問いから、あなたの街歩き・思考スタイルに最も近い山手線の駅を診断します。
+        </p>
+        <button class="btn" onclick="startQuiz()">診断を出発進行 🚃</button>
+      </div>
+
+      <div id="quizQuestionCard" class="card" style="display: none;">
+        <div class="progress-bar-wrap">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div class="question-header">
+          <span id="questionNum" style="font-weight: 800; color: var(--text-sub);">Q1 / 12</span>
+          <span id="questionAxis" class="q-axis-badge">ものさし</span>
+        </div>
+        <div id="questionText" class="q-title">質問文</div>
+        <div class="choices-grid">
+          <div class="choice-card" onclick="selectAnswer(1)">
+            <span class="choice-track">1番線</span>
+            <span id="choice1Text">選択肢1</span>
+          </div>
+          <div class="choice-card" onclick="selectAnswer(-1)">
+            <span class="choice-track">2番線</span>
+            <span id="choice2Text">選択肢2</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="quizResultCard" style="display: none;">
+        <div class="station-sign">
+          <span id="resStationCode" class="sign-code">JY01</span>
+          <div class="sign-ruby" id="resStationRuby">とうきょう</div>
+          <div class="sign-name" id="resStationName">東京</div>
+          <div class="sign-bar"></div>
+          <div><span id="resStationAlias" class="sign-alias">みんなの起点に立つ総司令</span></div>
+        </div>
+
+        <div class="card">
+          <p id="resStationDesc" style="font-size: 15px; margin-bottom: 18px; font-weight: 500;"></p>
+          
+          <div class="detail-section">
+            <div class="detail-label">🌟 この駅の強み</div>
+            <div id="resStationPros" class="detail-body"></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">⚠️ ちょっと注意</div>
+            <div id="resStationCons" class="detail-body"></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">💬 この駅の人に聞いてみよう</div>
+            <div id="resStationTopic" class="detail-body" style="background:#eaf6db; font-weight: 700; color:#2c5a08;"></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">🤝 相性のいい駅トップ3</div>
+            <div id="resStationBest3" class="detail-body"></div>
+          </div>
+
+          <div class="axis-compare-box">
+            <div style="font-weight: 800; font-size: 14px; margin-bottom: 10px;">あなたの4軸スコア</div>
+            <div class="axis-row"><span>しずか</span><div class="axis-meter"><div id="meter1" class="axis-fill"></div></div><span>にぎやか</span></div>
+            <div class="axis-row"><span>定番</span><div class="axis-meter"><div id="meter2" class="axis-fill"></div></div><span>寄り道</span></div>
+            <div class="axis-row"><span>理屈</span><div class="axis-meter"><div id="meter3" class="axis-fill"></div></div><span>気持ち</span></div>
+            <div class="axis-row"><span>計画</span><div class="axis-meter"><div id="meter4" class="axis-fill"></div></div><span>気まぐれ</span></div>
+          </div>
+
+          <div style="text-align: center; margin-top: 24px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn" onclick="startQuiz()">もう一度診断する 🔄</button>
+            <button class="btn btn-secondary" onclick="copyResult()">結果をコピー 📋</button>
+            <button class="btn btn-secondary" onclick="switchTab('dice')">この駅でサイコロ・お題へ 🎲</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- サイコロ＆お題カード画面 -->
+    <div id="diceView" class="view-panel">
+      <div class="card dice-playground">
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">街歩き・すごろくダイス</h2>
+        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 16px;">
+          サイコロを振って散歩の進路を決めたり、出目に応じたトークお題を引いて遊べます。
+        </p>
+
+        <div class="dice-visual-area">
+          <div id="diceCube" class="dice-cube">⚀</div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <button id="rollDiceBtn" class="btn" onclick="rollDice()">サイコロを振る 🎲</button>
+          <button class="btn btn-secondary" onclick="rollStationDice()">30駅ルーレット 🎡</button>
+        </div>
+
+        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 13px;">
+          <input type="checkbox" id="autoTopicCheckbox" checked>
+          <label for="autoTopicCheckbox" style="cursor: pointer; font-weight: 700;">サイコロを振ったらお題カードも自動で引く</label>
+        </div>
+      </div>
+
+      <!-- お題カードエリア -->
+      <div class="card card-topic-wrapper">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+          <h3 style="font-size: 17px; font-weight: 800;">お題カード（トークテーマ）</h3>
+          <div style="display: flex; gap: 6px;">
+            <select id="topicCategorySelect" class="station-select" style="padding: 4px 8px; font-size: 13px; width: auto;" onchange="drawTopicCard(false)">
+              <option value="all">すべてのカテゴリ</option>
+              <option value="station">山手線駅の問い</option>
+              <option value="walk">街歩き・散歩</option>
+              <option value="values">こだわり・価値観</option>
+              <option value="icebreak">思い出・未来</option>
+            </select>
+            <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 13px;" onclick="drawTopicCard(true)">カードを引く 🎴</button>
+          </div>
+        </div>
+
+        <div id="topicCardElement" class="topic-card">
+          <span id="topicCategoryBadge" class="topic-cat-badge">お題</span>
+          <div id="topicCardText" class="topic-text">「カードを引く」を押すとトークテーマが表示されます</div>
+          <div id="topicCardSub" class="topic-sub">散歩の合間や飲み会・雑談のアイスブレイクに！</div>
+        </div>
+
+        <div style="text-align: right; margin-top: 10px;">
+          <button class="btn-secondary" style="border:none; background:none; font-size:12px; cursor:pointer; color:var(--text-sub);" onclick="copyTopic()">このお題をコピー 📋</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 30駅図鑑・相性画面 -->
+    <div id="stationsView" class="view-panel">
+      <div class="card">
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">駅同士の相性シミュレーター</h2>
+        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 18px;">
+          2つの駅を選ぶと、相性スコア・ランク・中間のおすすめ待ち合わせ駅（所要時間）を算出します。
+        </p>
+
+        <div class="compat-picker">
+          <select id="compatStationA" class="station-select" onchange="calcCompatibility()"></select>
+          <div style="font-weight: 900; font-size: 18px; color: var(--yamanote);">×</div>
+          <select id="compatStationB" class="station-select" onchange="calcCompatibility()"></select>
+        </div>
+
+        <div class="compat-result-box">
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-sub);">相性スコア</div>
+          <div id="compatScore" class="compat-score">97</div>
+          <div><span id="compatRank" class="compat-rank">直通運転レベル</span></div>
+          <div id="compatMeet" class="compat-meet">中間地点：神田駅（約4分）</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 14px;">山手線 30駅図鑑一覧</h3>
+        <div id="stationListContainer" style="display: grid; gap: 12px;"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    /* 30駅の基本データ (MD定義完全準拠) */
+    const STATIONS = [
+      { id: "JY01", name: "東京", ruby: "とうきょう", alias: "みんなの起点に立つ総司令", score: [2, -1, -1, -2], desc: "あらゆる路線が集まる日本の中心。段取りと責任感で場をまとめる、頼れるリーダーです。", pros: "決断が早い・約束を守る", cons: "正論で押し切りがち", topic: "人生で一番「段取りがハマった」瞬間は？", best3: "有楽町（97）、大塚（96）、神田（95）" },
+      { id: "JY02", name: "神田", ruby: "かんだ", alias: "江戸っ子の現場監督", score: [1.5, -2, -1, -1], desc: "古書店とカレーと老舗の町。伝統を大事にしながら、手際よく物事を回す実務派です。", pros: "面倒見がよく筋を通す", cons: "「昔はこうだった」が口ぐせ", topic: "通い続けている「いつもの店」はある？", best3: "大塚（96）、東京（95）、駒込（95）" },
+      { id: "JY03", name: "秋葉原", ruby: "あきはばら", alias: "好きを極める探究者", score: [-1, 1, -2, 1], desc: "電気街からサブカルの聖地へ。興味を持ったら仕組みの底まで掘り下げます。", pros: "知識量と集中力", cons: "好きな話になると止まらない", topic: "誰にも止められない「推し」や趣味は？", best3: "高田馬場（95）、渋谷（95）、代々木（95）" },
+      { id: "JY04", name: "御徒町", ruby: "おかちまち", alias: "値切り上手の商売人", score: [1, -2, -1, 1], desc: "宝石問屋とアメ横の活気。駆け引きを楽しみ、チャンスには即反応します。", pros: "交渉力・瞬発力", cons: "飽きっぽい", topic: "今までで一番「いい買い物」だったものは？", best3: "原宿（99）、鶯谷（95）、田端（95）" },
+      { id: "JY05", name: "上野", ruby: "うえの", alias: "みんなを迎える玄関口", score: [1, 1, 2, -1], desc: "動物園に美術館、北からの玄関口。誰でも受け入れる包容力で、人と人をつなぎます。", pros: "包容力・人を育てる", cons: "抱え込みすぎる", topic: "今の仕事や街に来た「きっかけ」は？", best3: "日暮里（95）、目白（94）、大崎（94）" },
+      { id: "JY06", name: "鶯谷", ruby: "うぐいすだに", alias: "静かな個性派", score: [-2, -1, 1, 1], desc: "山手線屈指の静かな駅。自分のペースと美意識を、ひっそりと大切に守ります。", pros: "センス・マイペース", cons: "誤解されても弁解しない", topic: "誰にも教えたくない「隠れ家」は？", best3: "御徒町（95）、新宿（95）、新橋（93）" },
+      { id: "JY07", name: "日暮里", ruby: "にっぽり", alias: "遠くを見据える戦略家", score: [-2, 1, -1, -2], desc: "谷中の静けさとスカイライナー。足元は落ち着き、視線はずっと先にあります。", pros: "長期視点・計画力", cons: "説明を省きがち", topic: "5年後、どこで何をしていたい？", best3: "恵比寿（96）、目黒（96）、上野（95）" },
+      { id: "JY08", name: "西日暮里", ruby: "にしにっぽり", alias: "乗り換えの要の理論家", score: [-2, 0.5, -1, 1], desc: "千代田線等との結節点。目立たなくても仕組みを理解して最短ルートを導きます。", pros: "論理と効率", cons: "雑談が少し苦手", topic: "最近「なるほど」と唸った仕組みや知識は？", best3: "五反田（97）、高田馬場（95）、渋谷（95）" },
+      { id: "JY09", name: "田端", ruby: "たばた", alias: "鉄道の町の職人", score: [-1, -2, -2, 1], desc: "車両基地と文士村の歴史がある町。黙々と手を動かし、トラブルは現場で解決します。", pros: "冷静・器用", cons: "気持ちを言葉にしない", topic: "自分で直したり作ったりして自慢できるものは？", best3: "御徒町（95）、新大久保（95）、新橋（95）" },
+      { id: "JY10", name: "駒込", ruby: "こまごめ", alias: "庭を守る世話人", score: [-1, -1, 2, -1], desc: "六義園と染井吉野の里。季節を大切にし、周りを細やかに気づかいます。", pros: "気配り・継続力", cons: "自分を後回しにしがち", topic: "好きな季節と、その楽しみ方は？", best3: "巣鴨（99）、神田（95）、東京（95）" },
+      { id: "JY11", name: "巣鴨", ruby: "すがも", alias: "商店街の看板娘", score: [0.5, -2, 2, -1], desc: "とげぬき地蔵と商店街。誰にでも声をかけ、元気とお世話を配って回ります。", pros: "親しみやすさ", cons: "おせっかいになりがち", topic: "最近、人に「ありがとう」と言われたことは？", best3: "駒込（99）、大塚（99）、浜松町（95）" },
+      { id: "JY12", name: "大塚", ruby: "おおつか", alias: "都電と暮らす地元派", score: [-1, -2, 1, -2], desc: "山手線で唯一都電荒川線と接続。派手さより毎日の安定をコツコツ守ります。", pros: "安定感・信頼", cons: "急な変更が苦手", topic: "毎日欠かさない「マイルール」は？", best3: "巣鴨（99）、神田（96）、東京（96）" },
+      { id: "JY13", name: "池袋", ruby: "いけぶくろ", alias: "巨大ターミナルの野心家", score: [2, 1.5, -1, -1], desc: "西武・東武・サンシャイン。人も文化も飲み込みながら拡大し続ける実力派。", pros: "推進力・スケール感", cons: "勝ち負けにこだわる", topic: "今年中に必ず達成したいことは？", best3: "目白（99）、目黒（95）、日暮里（93）" },
+      { id: "JY14", name: "目白", ruby: "めじろ", alias: "品のある見守り役", score: [-2, 1, 1, -2], desc: "学習院と閑静な住宅街。多くを語らなくても人の本音をそっと見抜きます。", pros: "洞察・誠実", cons: "理想が高い", topic: "人生で影響を受けた本や言葉は？", best3: "池袋（99）、品川（95）、恵比寿（94）" },
+      { id: "JY15", name: "高田馬場", ruby: "たかだのばば", alias: "夢を語る学生街", score: [1.5, 1, 1, 2], desc: "発車ベルはアトム。早稲田とラーメンの町で、熱く語って仲間を巻き込みます。", pros: "熱量・巻き込み力", cons: "締め切りに弱い", topic: "学生時代に一番熱中したことは？", best3: "西日暮里（95）、秋葉原（95）、代々木（94）" },
+      { id: "JY16", name: "新大久保", ruby: "しんおおくぼ", alias: "多国籍ノリの盛り上げ役", score: [2, -1, 2, 2], desc: "国際色豊かな路地。流行も初対面もすぐ楽しめて、場の空気を明るくします。", pros: "ノリ・適応力", cons: "つい散財しがち", topic: "最近ハマった国の料理や文化は？", best3: "新宿（97）、原宿（95）、田端（95）" },
+      { id: "JY17", name: "新宿", ruby: "しんじゅく", alias: "乗降客数世界一のタフガイ", score: [2, -1, -1, 2], desc: "昼も夜もなんでもありの巨大迷路。どんな状況でも嗅覚で突破します。", pros: "行動力・タフさ", cons: "計画は後回し", topic: "勢いで決めて正解だったことは？", best3: "新大久保（97）、原宿（95）、鶯谷（95）" },
+      { id: "JY18", name: "代々木", ruby: "よよぎ", alias: "森を抱く理想家", score: [-1, 2, 2, 1], desc: "明治神宮北参道の緑。忙しい都会の真ん中でも、自分の世界と理想を手放しません。", pros: "共感力・想像力", cons: "現実とのギャップに凹む", topic: "もし何でも叶うなら、どんな暮らしをしたい？", best3: "高輪ゲートウェイ（96）、渋谷（95）、五反田（95）" },
+      { id: "JY19", name: "原宿", ruby: "はらじゅく", alias: "「好き」を着る表現者", score: [-1, -1, 2, 2], desc: "竹下通りとストリートカルチャー。人混みの中でも感性を形にして発信します。", pros: "美意識・自分らしさ", cons: "興味のないことには無関心", topic: "今日の服や持ち物のこだわりポイントは？", best3: "御徒町（99）、新宿（95）、新大久保（95）" },
+      { id: "JY20", name: "渋谷", ruby: "しぶや", alias: "トレンドの発信源", score: [1, 2, 1, 2], desc: "交差点と再開発の街。新しいもの、面白い人に一番に飛びつきます。", pros: "発信力・好奇心", cons: "気分屋", topic: "最近見つけた「これ流行りそう」なものは？", best3: "代々木（95）、西日暮里（95）、秋葉原（95）" },
+      { id: "JY21", name: "恵比寿", ruby: "えびす", alias: "大人の気配りホスト", score: [0.5, 1, 1, -2], desc: "店選びも会話の回し方もスマートな、大人な場づくりの名手です。", pros: "センス・ホスピタリティ", cons: "少し見栄を張りがち", topic: "人に紹介したい「とっておきの店」は？", best3: "目黒（98）、日暮里（96）、大崎（95）" },
+      { id: "JY22", name: "目黒", ruby: "めぐろ", alias: "桜並木の思慮深い人", score: [-1, 1, 2, -1], desc: "目黒川の桜と伝統。穏やかに見えて、内に強い信念を持っています。", pros: "思いやり・一貫性", cons: "気持ちをため込みがち", topic: "「見た目と中身が違う」と言われたことは？", best3: "恵比寿（98）、日暮里（96）、品川（95）" },
+      { id: "JY23", name: "五反田", ruby: "ごたんだ", alias: "五反田バレーの起業家", score: [1, 1, -1, 2], desc: "スタートアップと活気。アイデアを思いつくと試さずにいられません。", pros: "発想力・議論好き", cons: "飽きると次へ行く", topic: "起業するなら、何の会社をつくる？", best3: "西日暮里（97）、代々木（95）、秋葉原（94）" },
+      { id: "JY24", name: "大崎", ruby: "おおさき", alias: "再開発の静かな設計者", score: [-2, 1, -2, -1], desc: "整然としたオフィス街。感情より設計図で的確に動きます。", pros: "構想力・合理性", cons: "冷たく見られがち", topic: "ゼロから作り直すなら、どの仕組みを変えたい？", best3: "品川（98）、恵比寿（95）、上野（94）" },
+      { id: "JY25", name: "品川", ruby: "しながわ", alias: "新幹線ホームの司令塔", score: [1, 1, -2, -2], desc: "新幹線と羽田の玄関口。先を読んで最短で成果を出します。", pros: "決断力・戦略", cons: "せっかち", topic: "出張や旅行で一番思い出深い行き先は？", best3: "大崎（98）、目黒（95）、目白（95）" },
+      { id: "JY26", name: "高輪ゲートウェイ", ruby: "たかなわゲートウェイ", alias: "未来から来た新人", score: [1, 2, -1, 1], desc: "2020年開業の新しい駅。常識を更新していくオープンマインドなタイプです。", pros: "新しさ・柔軟さ", cons: "前例を軽く見がち", topic: "最近「常識が変わったな」と感じたことは？", best3: "代々木（96）、秋葉原（94）、渋谷（93）" },
+      { id: "JY27", name: "田町", ruby: "たまち", alias: "理系キャンパスの実務家", score: [-2, -1, -1, 1.5], desc: "大学とオフィスの町。無駄なく必要なことを淡々とこなします。", pros: "合理的・落ち着き", cons: "素っ気なく見える", topic: "地味だけど実は得意なことは？", best3: "新橋（95）、新大久保（95）、御徒町（94）" },
+      { id: "JY28", name: "浜松町", ruby: "はままつちょう", alias: "羽田への堅実な乗り継ぎ役", score: [-2, -1, -1, -2], desc: "モノレールと東京タワー。毎日きちんと役割を果たす縁の下の力持ち。", pros: "正確さ・責任感", cons: "融通がきかない", topic: "几帳面だと言われるポイントは？", best3: "有楽町（96）、巣鴨（95）、東京（94）" },
+      { id: "JY29", name: "新橋", ruby: "しんばし", alias: "SL広場の宴会部長", score: [2, -2, 1, 1], desc: "鉄道発祥の地。仕事終わりの一杯で誰とでもすぐ打ち解けます。", pros: "親しみ・場を温める", cons: "二次会が長い", topic: "忘れられない飲み会・食事会のエピソードは？", best3: "田町（95）、田端（95）、原宿（94）" },
+      { id: "JY30", name: "有楽町", ruby: "ゆうらくちょう", alias: "ガード下と銀座をつなぐ社交家", score: [1, -1, 1, -2], desc: "ガード下と銀座の上品さ。相手に合わせて自然に場をつくります。", pros: "調整力・社交性", cons: "八方美人と言われがち", topic: "初対面の人と仲良くなるコツは？", best3: "東京（97）、浜松町（96）、大塚（95）" }
+    ];
+
+    /* 12の質問定義 (MD定義準拠: 軸0=にぎやか, 軸1=寄り道, 軸2=気持ち, 軸3=気まぐれ) */
+    const QUESTIONS = [
+      { axisIndex: 0, axisName: "にぎやか／しずか", c1: "声をかけて立ち話する（にぎやか）", c1Val: 1, c2: "気づかれないうちに改札へ（しずか）", c2Val: -1 },
+      { axisIndex: 1, axisName: "寄り道／定番", c1: "表示された最短ルートに素直に乗る（定番）", c1Val: -1, c2: "「この駅で降りたら面白そう」と寄り道を考える（寄り道）", c2Val: 1 },
+      { axisIndex: 2, axisName: "気持ち／理屈", c1: "まず「大変だったね」と声をかける（気持ち）", c1Val: 1, c2: "次から迷わないルートを教える（理屈）", c2Val: -1 },
+      { axisIndex: 3, axisName: "気まぐれ／計画", c1: "10分前には着いている（計画）", c1Val: -1, c2: "ぴったりか、ちょっとギリギリ（気まぐれ）", c2Val: 1 },
+      { axisIndex: 0, axisName: "にぎやか／しずか", c1: "家でゆっくり回復する（しずか）", c1Val: -1, c2: "誰か誘って飲みに行く（にぎやか）", c2Val: 1 },
+      { axisIndex: 1, axisName: "寄り道／定番", c1: "直感でピンときた路地に入る（寄り道）", c1Val: 1, c2: "評価の高い定番の店を調べて行く（定番）", c2Val: -1 },
+      { axisIndex: 2, axisName: "気持ち／理屈", c1: "コスパと立地（理屈）", c1Val: -1, c2: "一緒に行く人が喜びそうか（気持ち）", c2Val: 1 },
+      { axisIndex: 3, axisName: "気まぐれ／計画", c1: "宿だけ取って、あとは現地で考える（気まぐれ）", c1Val: 1, c2: "乗る電車まで決めておく（計画）", c2Val: -1 },
+      { axisIndex: 0, axisName: "にぎやか／しずか", c1: "自分から話題を振る（にぎやか）", c1Val: 1, c2: "話しかけられるのを待つ（しずか）", c2Val: -1 },
+      { axisIndex: 1, axisName: "寄り道／定番", c1: "具体的な出来事を順番に話す（定番）", c1Val: -1, c2: "たとえ話や「要するに」が多い（寄り道）", c2Val: 1 },
+      { axisIndex: 2, axisName: "気持ち／理屈", c1: "みんなが納得できる落としどころを探す（気持ち）", c1Val: 1, c2: "筋が通っているほうを選ぶ（理屈）", c2Val: -1 },
+      { axisIndex: 3, axisName: "気まぐれ／計画", c1: "先に来たほうに乗る（気まぐれ）", c1Val: 1, c2: "事前に早いほうを調べておく（計画）", c2Val: -1 }
+    ];
+
+    /* 30x30 相性表マトリクスデータ (MD完全準拠) */
+    const COMPAT_TABLE = [
+      [99,95,70,84,75,88,77,70,87,95,92,96,74,79,68,89,84,71,87,68,76,78,67,77,75,67,86,94,86,97],
+      [95,99,74,84,75,88,77,70,88,95,92,96,74,78,68,85,88,71,88,68,75,78,67,77,74,66,87,94,86,92],
+      [70,74,99,81,88,75,84,90,74,68,71,68,87,85,95,78,77,95,75,95,88,84,94,85,88,94,74,67,78,72],
+      [84,84,81,99,72,95,70,77,95,89,85,89,67,71,75,92,91,78,99,75,68,72,74,70,67,73,94,87,93,85],
+      [75,75,88,72,99,75,95,88,71,78,74,77,92,94,84,68,68,88,71,88,90,94,85,94,91,85,71,78,67,74],
+      [88,88,75,95,75,99,73,76,92,84,88,84,71,68,77,93,95,74,91,77,74,68,79,69,71,78,92,86,93,87],
+      [77,77,84,70,95,73,99,88,67,75,78,76,93,93,87,70,69,85,68,88,96,96,86,91,94,87,67,75,71,79],
+      [70,70,90,77,88,76,88,99,78,69,72,69,86,85,95,78,77,92,75,95,88,85,97,84,87,93,75,68,78,72],
+      [87,88,74,95,71,92,67,78,99,89,89,85,70,68,78,95,94,74,91,78,71,68,77,72,71,77,91,84,95,88],
+      [95,95,68,89,78,84,75,69,89,99,99,91,78,74,70,87,88,68,84,70,78,74,72,75,82,72,85,92,87,94],
+      [92,92,71,85,74,88,78,72,89,99,99,99,74,77,67,84,85,71,88,66,74,78,68,78,74,71,88,95,85,91],
+      [96,96,68,89,77,84,76,69,85,91,99,99,82,74,69,87,88,66,83,69,78,74,71,75,79,71,89,93,87,95],
+      [74,74,87,67,92,71,93,86,70,78,74,82,99,99,85,69,67,89,71,86,92,95,84,93,91,84,70,80,69,75],
+      [79,78,85,71,94,68,93,85,68,74,77,74,99,99,90,69,71,84,67,86,94,91,88,92,95,88,69,77,73,78],
+      [68,68,95,75,84,77,87,95,78,70,67,69,85,90,99,79,76,94,78,91,83,87,92,88,84,92,79,71,74,70],
+      [89,85,78,92,68,93,70,78,95,87,84,87,69,69,79,99,97,78,95,75,67,71,76,70,67,75,95,87,92,83],
+      [84,88,77,91,68,95,69,77,94,88,85,88,67,71,76,97,99,82,95,76,68,71,75,70,67,74,93,86,93,85],
+      [71,71,95,78,88,74,85,92,74,68,71,66,89,84,94,78,82,99,78,95,87,85,95,85,88,96,75,68,76,70],
+      [87,88,75,99,71,91,68,75,91,84,88,83,71,67,78,95,95,78,99,82,70,68,79,68,71,78,92,84,94,87],
+      [68,68,95,75,88,77,88,95,78,70,66,69,86,86,91,75,76,95,82,99,87,87,93,88,84,93,79,71,73,66],
+      [76,75,88,68,90,74,96,88,71,78,74,78,92,94,83,67,68,87,70,87,99,98,84,95,92,85,72,79,67,74],
+      [78,78,84,72,94,68,96,85,68,74,78,74,95,91,87,71,71,85,68,87,98,99,92,91,95,89,68,75,70,78],
+      [67,67,94,74,85,79,86,97,77,72,68,71,84,88,92,76,75,95,79,93,84,92,99,91,83,91,77,70,75,68],
+      [77,77,85,70,94,69,91,84,72,75,78,75,93,92,88,70,70,85,68,88,95,91,91,99,98,87,68,75,71,78],
+      [75,74,88,67,91,71,94,87,71,82,74,79,91,95,84,67,67,88,71,84,92,95,83,98,99,88,70,78,68,76],
+      [67,66,94,73,85,78,87,93,77,72,71,71,84,88,92,75,74,96,78,93,85,89,91,87,88,99,81,70,75,68],
+      [86,87,74,94,71,92,67,75,91,85,88,89,70,69,79,95,93,75,92,79,72,68,77,68,70,81,99,88,95,88],
+      [94,94,67,87,78,86,75,68,84,92,95,93,80,77,71,87,86,68,84,71,79,75,70,75,78,70,88,99,92,96],
+      [86,86,78,93,67,93,71,78,95,87,85,87,69,73,74,92,93,76,94,73,67,70,75,71,68,75,95,92,99,88],
+      [97,92,72,85,74,87,79,72,88,94,91,95,75,78,70,83,85,70,87,66,74,78,68,78,76,68,88,96,88,99]
+    ];
+
+    /* お題カードライブラリ (駅の問い＋街歩きテーマ) */
+    const TOPIC_CARDS = [
+      ...STATIONS.map(s => ({ cat: "station", catName: `駅の問い (${s.name})`, text: s.topic, sub: `JY${s.id.slice(2)} ${s.name}駅タイプの人に刺さる質問` })),
+      { cat: "walk", catName: "街歩き・散歩", text: "今日この街で、直感で気になった看板や路地はあった？", sub: "さんぽ観察トーク" },
+      { cat: "walk", catName: "街歩き・散歩", text: "山手線で一番「途中下車」したくなる駅はどこ？その理由は？", sub: "よりみちトーク" },
+      { cat: "walk", catName: "街歩き・散歩", text: "散歩中に見つけたら思わず入ってしまうお店の種類は？", sub: "さんぽの寄り道癖" },
+      { cat: "values", catName: "こだわり・価値観", text: "旅行の計画、何割くらい決めてから出発したい？", sub: "気まぐれ vs 計画" },
+      { cat: "values", catName: "こだわり・価値観", text: "疲れた週末、ひとりでこもる派？ 誰かと話して発散する派？", sub: "充電スタイルの違い" },
+      { cat: "icebreak", catName: "思い出・未来", text: "人生で一番「迷子になって面白かった」エピソードは？", sub: "ハプニング思い出話" },
+      { cat: "icebreak", catName: "思い出・未来", text: "もし1週間どこかの街に滞在できるなら、山手線のどこに住んでみたい？", sub: "妄想ステイ体験" }
+    ];
+
+    /* 状態管理 */
+    let currentQ = 0;
+    let userAnswers = [];
+    let lastResultStation = null;
+    const DICE_ICONS = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadSavedLogo();
+      initCompatPickers();
+      renderStationList();
+    });
+
+    /* タブ切り替え */
+    function switchTab(tabId) {
+      document.querySelectorAll(".nav-btn").forEach((btn, idx) => {
+        btn.classList.toggle("active", (tabId === "quiz" && idx === 0) || (tabId === "dice" && idx === 1) || (tabId === "stations" && idx === 2));
+      });
+      document.getElementById("quizView").classList.toggle("active", tabId === "quiz");
+      document.getElementById("diceView").classList.toggle("active", tabId === "dice");
+      document.getElementById("stationsView").classList.toggle("active", tabId === "stations");
+    }
+
+    /* ロゴ画像管理 */
+    function handleLogoUpload(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          localStorage.setItem("wsd_custom_logo", e.target.result);
+          applyLogo(e.target.result);
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+    function loadSavedLogo() {
+      const saved = localStorage.getItem("wsd_custom_logo");
+      if (saved) applyLogo(saved);
+    }
+    function applyLogo(url) {
+      const img = document.getElementById("headerLogoImg");
+      const fallback = document.getElementById("headerLogoFallback");
+      img.src = url;
+      img.style.display = "block";
+      fallback.style.display = "none";
+    }
+
+    /* 診断開始 */
+    function startQuiz() {
+      currentQ = 0;
+      userAnswers = [];
+      document.getElementById("quizStartCard").style.display = "none";
+      document.getElementById("quizResultCard").style.display = "none";
+      document.getElementById("quizQuestionCard").style.display = "block";
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = QUESTIONS[currentQ];
+      document.getElementById("questionNum").innerText = `Q${currentQ + 1} / 12`;
+      document.getElementById("questionAxis").innerText = q.axisName;
+      document.getElementById("progressBar").style.width = `${((currentQ) / 12) * 100}%`;
+      document.getElementById("questionText").innerText = `日常の移動や過ごし方、あなたならどっち？`;
+      document.getElementById("choice1Text").innerText = q.c1;
+      document.getElementById("choice2Text").innerText = q.c2;
+    }
+
+    function selectAnswer(direction) {
+      const q = QUESTIONS[currentQ];
+      // direction: 1 = c1 (加算), -1 = c2
+      const val = direction === 1 ? q.c1Val : q.c2Val;
+      userAnswers.push({ axis: q.axisIndex, val: val });
+
+      currentQ++;
+      if (currentQ < QUESTIONS.length) {
+        showQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    /* 診断集計 (MD仕様: 各軸合計を1.5で割り、スコアとのユークリッド二乗距離が最小の駅) */
+    function finishQuiz() {
+      document.getElementById("quizQuestionCard").style.display = "none";
+      document.getElementById("progressBar").style.width = "100%";
+
+      const axisSums = [0, 0, 0, 0];
+      userAnswers.forEach(a => { axisSums[a.axis] += a.val; });
+      const userScores = axisSums.map(sum => sum / 1.5);
+
+      let bestStation = STATIONS[0];
+      let minDistance = Infinity;
+
+      STATIONS.forEach(st => {
+        let dist = 0;
+        for (let i = 0; i < 4; i++) {
+          dist += Math.pow(userScores[i] - st.score[i], 2);
+        }
+        if (dist < minDistance) {
+          minDistance = dist;
+          bestStation = st;
+        }
+      });
+
+      lastResultStation = bestStation;
+      renderResult(bestStation, userScores);
+    }
+
+    function renderResult(st, scores) {
+      document.getElementById("resStationCode").innerText = st.id;
+      document.getElementById("resStationRuby").innerText = st.ruby;
+      document.getElementById("resStationName").innerText = st.name;
+      document.getElementById("resStationAlias").innerText = st.alias;
+      document.getElementById("resStationDesc").innerText = st.desc;
+      document.getElementById("resStationPros").innerText = st.pros;
+      document.getElementById("resStationCons").innerText = st.cons;
+      document.getElementById("resStationTopic").innerText = `「${st.topic}」`;
+      document.getElementById("resStationBest3").innerText = st.best3;
+
+      // 4軸メーター描画 (-2〜+2 を 0%〜100% に変換)
+      for (let i = 0; i < 4; i++) {
+        const pct = Math.max(0, Math.min(100, ((scores[i] + 2) / 4) * 100));
+        const fill = document.getElementById(`meter${i+1}`);
+        fill.style.width = `${pct}%`;
+      }
+
+      document.getElementById("quizResultCard").style.display = "block";
+    }
+
+    function copyResult() {
+      if (!lastResultStation) return;
+      const text = `【山手線 駅タイプ診断】\n私の駅タイプは「${lastResultStation.name}駅（${lastResultStation.alias}）」でした！\n強み：${lastResultStation.pros}\nこの駅の人に聞いてみよう：${lastResultStation.topic}\n#山手線駅タイプ診断 #WSDわたしたちさんぽだいすき`;
+      navigator.clipboard.writeText(text).then(() => alert("診断結果をクリップボードにコピーしました！"));
+    }
+
+    /* サイコロ機能 */
+    function rollDice() {
+      const cube = document.getElementById("diceCube");
+      const btn = document.getElementById("rollDiceBtn");
+      cube.classList.add("dice-rolling");
+      btn.disabled = true;
+
+      setTimeout(() => {
+        cube.classList.remove("dice-rolling");
+        btn.disabled = false;
+        const roll = Math.floor(Math.random() * 6) + 1;
+        cube.innerText = DICE_ICONS[roll - 1];
+
+        if (document.getElementById("autoTopicCheckbox").checked) {
+          drawTopicCard(true);
+        }
+      }, 500);
+    }
+
+    function rollStationDice() {
+      const cube = document.getElementById("diceCube");
+      cube.classList.add("dice-rolling");
+      setTimeout(() => {
+        cube.classList.remove("dice-rolling");
+        const randSt = STATIONS[Math.floor(Math.random() * STATIONS.length)];
+        cube.style.fontSize = "18px";
+        cube.innerText = randSt.name;
+        setTimeout(() => { cube.style.fontSize = "40px"; }, 2500);
+
+        // その駅のお題を表示
+        showTopicContent({
+          catName: `駅ルーレット (${randSt.name})`,
+          text: randSt.topic,
+          sub: `${randSt.alias}（JY${randSt.id.slice(2)}）のお題`
+        });
+      }, 400);
+    }
+
+    /* お題カード */
+    function drawTopicCard(animate = true) {
+      const cat = document.getElementById("topicCategorySelect").value;
+      let pool = TOPIC_CARDS;
+      if (cat !== "all") {
+        pool = TOPIC_CARDS.filter(t => t.cat === cat);
+      }
+      const chosen = pool[Math.floor(Math.random() * pool.length)];
+      showTopicContent(chosen, animate);
+    }
+
+    function showTopicContent(item, animate = true) {
+      const card = document.getElementById("topicCardElement");
+      if (animate) {
+        card.classList.remove("flipped");
+        void card.offsetWidth; // リフロー
+        card.classList.add("flipped");
+      }
+      document.getElementById("topicCategoryBadge").innerText = item.catName;
+      document.getElementById("topicCardText").innerText = item.text;
+      document.getElementById("topicCardSub").innerText = item.sub;
+    }
+
+    function copyTopic() {
+      const text = document.getElementById("topicCardText").innerText;
+      navigator.clipboard.writeText(text).then(() => alert("お題をコピーしました！"));
+    }
+
+    /* 相性シミュレーター */
+    function initCompatPickers() {
+      const selA = document.getElementById("compatStationA");
+      const selB = document.getElementById("compatStationB");
+      STATIONS.forEach((s, idx) => {
+        const optA = new Option(`${s.id} ${s.name}`, idx);
+        const optB = new Option(`${s.id} ${s.name}`, idx);
+        selA.add(optA);
+        selB.add(optB);
+      });
+      selA.value = 0;  // 東京
+      selB.value = 29; // 有楽町
+      calcCompatibility();
+    }
+
+    function calcCompatibility() {
+      const idxA = parseInt(document.getElementById("compatStationA").value);
+      const idxB = parseInt(document.getElementById("compatStationB").value);
+      const score = COMPAT_TABLE[idxA][idxB];
+
+      document.getElementById("compatScore").innerText = score;
+
+      let rank = "各駅停車でゆっくり育つ仲";
+      if (score >= 90) rank = "直通運転レベル";
+      else if (score >= 82) rank = "快速で会える仲";
+      else if (score >= 74) rank = "乗り換え1回で会える仲";
+      document.getElementById("compatRank").innerText = rank;
+
+      // 待ち合わせ中間駅＆所要時間の計算 (1駅約2分, 近い回りを採用)
+      const diffClock = (idxB - idxA + 30) % 30;
+      const diffCounter = (idxA - idxB + 30) % 30;
+      const minDistance = Math.min(diffClock, diffCounter);
+      const halfDist = Math.round(minDistance / 2);
+
+      let midIdx;
+      if (diffClock <= diffCounter) {
+        midIdx = (idxA + halfDist) % 30;
+      } else {
+        midIdx = (idxA - halfDist + 30) % 30;
+      }
+      const midStation = STATIONS[midIdx];
+      const approxTime = halfDist * 2;
+      document.getElementById("compatMeet").innerText = `おすすめ待ち合わせ駅：${midStation.name}駅（お互いから約${approxTime}分）`;
+    }
+
+    /* 30駅一覧図鑑 */
+    function renderStationList() {
+      const container = document.getElementById("stationListContainer");
+      container.innerHTML = STATIONS.map(s => `
+        <div style="background:#fff; border:1px solid var(--border); border-radius:10px; padding:14px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <strong style="font-size:15px; color:#1a1a1a;">${s.id} ${s.name}</strong>
+            <span style="background:var(--yamanote-light); color:var(--yamanote-dark); font-weight:700; padding:2px 8px; border-radius:12px; font-size:11px;">${s.alias}</span>
+          </div>
+          <div style="color:var(--text-sub); margin-bottom:6px;">${s.desc}</div>
+          <div style="font-size:12px; background:#f8fafc; padding:6px 10px; border-radius:6px; color:#495057;">
+            <strong>💬 お題:</strong> ${s.topic}
+          </div>
+        </div>
+      `).join("");
+    }
+  </script>
+</body>
+</html>
